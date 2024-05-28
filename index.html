@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stay Focused</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #FFFFFF;
+            color: #000000;
+            padding: 20px;
+        }
+        #quote {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #intention-form {
+            margin-bottom: 20px;
+        }
+        #intentions-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .intention-item {
+            margin-bottom: 10px;
+        }
+        .delete-button {
+            margin-left: 10px;
+            color: red;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="quote">"The only limit to our realization of tomorrow is our doubts of today." - Franklin D. Roosevelt</div>
+    <form id="intention-form">
+        <input type="text" id="intention-input" placeholder="Write down your intention..." required>
+        <button type="submit">Save</button>
+    </form>
+    <h2>Past Intentions</h2>
+    <ul id="intentions-list"></ul>
+    <script>
+        document.getElementById('intention-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const intentionInput = document.getElementById('intention-input');
+            const intention = intentionInput.value.trim();
+            if (intention) {
+                const timestamp = new Date().toLocaleString();
+                addIntentionToList(intention, timestamp);
+                saveIntention(intention, timestamp);
+                intentionInput.value = '';
+            }
+        });
+
+        function addIntentionToList(intention, timestamp) {
+            const intentionsList = document.getElementById('intentions-list');
+            const listItem = document.createElement('li');
+            listItem.className = 'intention-item';
+            listItem.innerHTML = `${timestamp} - ${intention} <span class="delete-button" onclick="deleteIntention(this)">Delete</span>`;
+            intentionsList.prepend(listItem);
+        }
+
+        function saveIntention(intention, timestamp) {
+            const intentions = JSON.parse(localStorage.getItem('intentions')) || [];
+            intentions.push({ intention, timestamp });
+            localStorage.setItem('intentions', JSON.stringify(intentions));
+        }
+
+        function deleteIntention(deleteButton) {
+            const listItem = deleteButton.parentElement;
+            const timestamp = listItem.textContent.split(' - ')[0];
+            listItem.remove();
+            let intentions = JSON.parse(localStorage.getItem('intentions')) || [];
+            intentions = intentions.filter(item => item.timestamp !== timestamp);
+            localStorage.setItem('intentions', JSON.stringify(intentions));
+        }
+
+        function loadIntentions() {
+            const intentions = JSON.parse(localStorage.getItem('intentions')) || [];
+            intentions.forEach(({ intention, timestamp }) => addIntentionToList(intention, timestamp));
+        }
+
+        window.onload = loadIntentions;
+    </script>
+</body>
+</html>
